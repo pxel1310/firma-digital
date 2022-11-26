@@ -96,10 +96,10 @@ const HomePage: NextPage = () => {
           mb: 4,
         }}
       >
-        <Typography variant="h6" component="h2">
+        <Typography variant="body1">
           Realizado por: <strong>Ayala González Ian, </strong>
           <strong>Edwin Uriel Astudillo Perez </strong>
-          <strong>y Fernando</strong>
+          <strong>y Fernando Linares Medina</strong>
         </Typography>
       </Box>
     </Layout>

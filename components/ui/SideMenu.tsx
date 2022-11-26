@@ -42,14 +42,14 @@ export const SideMenu = () => {
                 <ListItemIcon>
                   <VpnKeyOutlined />
                 </ListItemIcon>
-                <ListItemText primary={"Cifrador"} />
+                <ListItemText primary={"Firmar"} />
               </ListItem>
 
               <ListItem onClick={() => navigateTo("/share")}>
                 <ListItemIcon>
                   <CoPresentOutlined />
                 </ListItemIcon>
-                <ListItemText primary={"Compartir mensaje"} />
+                <ListItemText primary={"Compartir firma"} />
               </ListItem>
             </>
           )}

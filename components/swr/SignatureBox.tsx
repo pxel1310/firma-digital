@@ -162,7 +162,7 @@ export const SignatureBox: FC = function () {
       }}
     >
       <Typography variant="h4" component="h1" sx={{ color: "primary.main" }}>
-        Enciptador AES para mensajes y documentos
+        Firma digital
       </Typography>
       <Divider sx={{ my: 2 }} />
       <Stack sx={{ width: "100%" }} spacing={2}>
