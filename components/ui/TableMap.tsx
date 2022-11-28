@@ -8,9 +8,7 @@ import {
   TablePagination,
   TableRow,
 } from "@mui/material";
-import { ChangeEvent, FC, useContext, useState } from "react";
-
-import { AuthContext } from "../../context";
+import { ChangeEvent, FC, useState } from "react";
 
 interface UserAll {
   name: string;

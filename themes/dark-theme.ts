@@ -2,7 +2,7 @@ import { createTheme } from "@mui/material/styles";
 
 export const darkTheme = createTheme({
   palette: {
-    mode: "dark",
+    mode: "light",
   },
   components: {
     MuiLink: {
@@ -18,7 +18,6 @@ export const darkTheme = createTheme({
       styleOverrides: {
         root: {
           height: 60,
-          backgroundColor: "#1A1A1A",
         },
       },
     },
@@ -26,37 +25,47 @@ export const darkTheme = createTheme({
     MuiTypography: {
       styleOverrides: {
         h1: {
+          fontSize: "3rem",
+          fontWeight: 700,
+        },
+        h2: {
           fontSize: "2.5rem",
           fontWeight: 600,
         },
-        h2: {
-          fontSize: "2rem",
+        h3: {
+          fontSize: "2.1rem",
+          fontWeight: 550,
+        },
+        h4: {
+          fontSize: "1.5rem",
+          fontWeight: 500,
+        },
+        h5: {
+          fontSize: "1.25rem",
           fontWeight: 400,
         },
-        subtitle1: {
-          fontSize: 18,
-          fontWeight: 600,
+        h6: {
+          fontSize: "1rem",
+          fontWeight: 400,
         },
       },
     },
 
     MuiButton: {
       defaultProps: {
-        variant: "contained",
+        variant: "outlined",
         size: "small",
         disableElevation: true,
         color: "info",
       },
       styleOverrides: {
         root: {
-          textTransform: "none",
+          borderRadius: 0,
           boxShadow: "none",
-          borderRadius: 10,
-          ":hover": {
-            backgroundColor: "rgba(0,0,0,0.05)",
-            transition: "all 0.3s ease-in-out",
+          textTransform: "none",
+          "&:hover": {
+            boxShadow: "none",
           },
-          fontSize: 16,
         },
       },
     },

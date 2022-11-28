@@ -25,22 +25,17 @@ const postVerify = async function (
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  const { base64File } = req.body;
+  const { base64File, publicKey, signature } = req.body;
 
   try {
-    await db.connect();
-    const file = await Signatures.findOne({ base64File }).lean();
-    await db.disconnect();
-
-    if (!file) {
+    if (!base64File || !publicKey || !signature) {
       return res.status(404).json({
         verify: false,
       });
     }
 
-
     res.status(200).json({
-      verify: keys.verifySignature(file.publicKey, base64File, file.signature),
+      verify: keys.verifySignature(publicKey, base64File, signature),
     });
   } catch (error) {
     return res.status(500).json({

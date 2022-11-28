@@ -11,7 +11,9 @@ import {
   TablePagination,
   TableRow,
 } from "@mui/material";
-import { DescargarArchivo, VisualizarArchivo } from "./DescargarArchivo";
+import { VisualizarArchivo } from "./DescargarArchivo";
+
+import { parce } from "../../utils";
 
 interface Column {
   id: "id" | "user" | "file" | "size" | "type" | "lastModified" | "view";
@@ -63,24 +65,22 @@ const columns: readonly Column[] = [
 ];
 
 interface Data {
-  id: number;
+  id: string;
   user: string;
   file: string;
-  lastModified: number;
-  size: number;
+  lastModified: string;
+  size: string;
   type: string;
-
   view: JSX.Element;
 }
 
 function createData(
-  id: number,
+  id: string,
   user: string,
   file: string,
-  lastModified: number,
-  size: number,
+  lastModified: string,
+  size: string,
   type: string,
-
   view: JSX.Element
 ): Data {
   return {
@@ -90,7 +90,6 @@ function createData(
     lastModified,
     size,
     type,
-
     view,
   };
 }
@@ -102,7 +101,6 @@ interface Props {
 export const StickyHeadTable: FC<Props> = ({ dataSig }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
@@ -112,22 +110,30 @@ export const StickyHeadTable: FC<Props> = ({ dataSig }) => {
     setPage(0);
   };
 
-  let rows = dataSig.map((index, id) => {
-    return createData(
-      id,
-      index.user,
-      index.title.substring(0, 40) + "...",
-      index.lastModified,
-      index.size,
-      index.type,
-      <VisualizarArchivo
-        base64File={index.base64File}
-        title={index.title}
-        type={index.type}
-        author={index.user}
-      />
-    );
-  });
+  let rows = dataSig
+    .map((index) => {
+      let date = String(parce.getFormatDistanceToNow(index.lastModified));
+
+      return createData(
+        index._id.substring(0, 5) + index._id.substring(20, 24),
+        index.user,
+        index.title.substring(0, 40) + "...",
+        date[0].toUpperCase() + date.substring(1),
+        index.size < 1000
+          ? `${index.size} bytes`
+          : `${parce.getKb(index.size)} kb`,
+        index.type,
+        <VisualizarArchivo
+          base64File={index.base64File}
+          title={index.title}
+          type={index.type}
+          author={index.user}
+          llavePublica={index.publicKey}
+          signature={index.signature}
+        />
+      );
+    })
+    .filter((index) => index !== undefined);
 
   return (
     <Paper sx={{ width: "100%", overflow: "hidden" }}>

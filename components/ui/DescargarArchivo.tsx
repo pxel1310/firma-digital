@@ -21,6 +21,8 @@ interface VerProps {
   title: string;
   type: string;
   author: string;
+  llavePublica: string;
+  signature: string;
 }
 
 export const VisualizarArchivo: FC<VerProps> = ({
@@ -28,6 +30,8 @@ export const VisualizarArchivo: FC<VerProps> = ({
   title,
   type,
   author,
+  llavePublica,
+  signature,
 }) => {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
@@ -43,6 +47,21 @@ export const VisualizarArchivo: FC<VerProps> = ({
       u8arr[n] = bstr.charCodeAt(n);
     }
     return new File([u8arr], filename, { type: mime });
+  };
+
+  const donwloadFile = {
+    llavePublica,
+    signature,
+  };
+
+  const convertObjectToBase64 = (obj: object) => {
+    return btoa(JSON.stringify(obj));
+  };
+
+  const convertObjectToFile = (obj: object, filename: string) => {
+    return new File([JSON.stringify(obj, null, 3)], filename, {
+      type: "application/json",
+    });
   };
 
   return (
@@ -75,21 +94,19 @@ export const VisualizarArchivo: FC<VerProps> = ({
           >
             <Typography
               id="transition-modal-title"
-              variant="h2"
-              component="h2"
-              sx={{ mb: 2, textAlign: "center" }}
+              variant="h3"
+              sx={{ mb: 2, textAlign: "center", color: "primary.main" }}
             >
               {title.length > 40 ? title.slice(0, 40) + "..." : title}
             </Typography>
             <Typography
               id="transition-modal-description"
-              sx={{ textAlign: "center" }}
+              sx={{ textAlign: "center", mb: 2 }}
             >
               Firmado por: {author}
-              &nbsp; &nbsp;
               <CheckIcon sx={{ color: "success.main" }} />
             </Typography>
-            <Divider sx={{ mb: 2 }} />
+
             <Typography id="transition-modal-description" sx={{ mt: 2 }}>
               <object
                 data={URL.createObjectURL(
@@ -97,17 +114,23 @@ export const VisualizarArchivo: FC<VerProps> = ({
                 )}
                 type={type}
                 style={{ width: "100%", height: "100%" }}
-              >
-                <embed
-                  src={URL.createObjectURL(
-                    convertBase64ToFile(base64File, title)
-                  )}
-                  type={type}
-                />
-              </object>
+              />
             </Typography>
+
             <Divider sx={{ my: 2 }} />
-            <DescargarArchivo idFile={base64File} title={title} />
+            <Typography id="transition-modal-description" sx={{ mt: 2 }}>
+              <object
+                data={URL.createObjectURL(
+                  convertObjectToFile(donwloadFile, title)
+                )}
+                type={"application/json"}
+                style={{ width: "100%", height: "100%" }}
+              />
+            </Typography>
+            <DescargarArchivo
+              idFile={base64File}
+              title={title}
+            />
           </Box>
         </Fade>
       </Modal>
@@ -115,7 +138,10 @@ export const VisualizarArchivo: FC<VerProps> = ({
   );
 };
 
-export const DescargarArchivo: FC<Props> = ({ idFile, title }) => {
+export const DescargarArchivo: FC<Props> = ({
+  idFile,
+  title,
+}) => {
   return (
     <Box sx={{ display: "flex", justifyContent: "center" }}>
       <Button
@@ -130,7 +156,7 @@ export const DescargarArchivo: FC<Props> = ({ idFile, title }) => {
           link.click();
         }}
       >
-        Descargar
+        Descargar Archivo
       </Button>
     </Box>
   );

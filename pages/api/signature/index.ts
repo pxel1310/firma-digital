@@ -6,7 +6,7 @@ import { db } from "../../../database";
 import { Signatures } from "../../../models";
 import { ISignature } from "../../../interfaces";
 
-type Data = { message: string } | ISignature | ISignature[];
+type Data = any;
 
 export default function handler(
   req: NextApiRequest,
@@ -52,13 +52,10 @@ const postSignature = async function (
   const fileArray = req.body as ISignature[];
 
   for (let i = 0; i < fileArray.length; i++) {
-    const { privateKey, publicKey } = keys.getKeys(),
-      { base64File } = fileArray[i];
+    const { base64File, privateKey } = fileArray[i];
 
     fileArray[i] = {
       ...fileArray[i],
-      privateKey,
-      publicKey,
       signature: keys.getSignature(privateKey, base64File),
     };
   }
@@ -69,6 +66,7 @@ const postSignature = async function (
     await db.disconnect();
     res.status(200).json({
       message: "Archivos firmados correctamente",
+      signature: fileArray[0].signature,
     });
   } catch (e) {
     res.status(500).json({

@@ -1,7 +1,8 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { Layout } from "../components/layouts";
+import { NextPage } from "next";
 
-const Custom404 = () => {
+const Custom404: NextPage = () => {
   return (
     <Layout
       title="Page not found"

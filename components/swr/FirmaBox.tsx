@@ -13,6 +13,7 @@ import StickyHeadTable from "../ui/Table";
 import UserAllTable from "../ui/TableMap";
 import NextLink from "next/link";
 import { ISignature, UserAll } from "../../interfaces";
+import { TableProp } from "./TableProp";
 
 interface Props {
   data: ISignature[];
@@ -36,12 +37,12 @@ export const FirmaBox: FC<Props> = ({ data, users }) => {
           borderRadius: "10px",
         }}
       >
-        <Typography variant="h2" sx={{ color: "primary.main" }}>
+        <Typography variant="h3" sx={{ color: "primary.main" }}>
           Comparte tus Archivos firmados con tus amigos
         </Typography>
         <Divider sx={{ my: 2 }} />
         <Stack sx={{ width: "100%" }} spacing={2}>
-          <Alert severity="info">
+          <Alert variant="outlined" severity="info">
             <AlertTitle>Informativo</AlertTitle>
             Tus amigos podrán ver tus archivos firmados y descargarlos. Los
             archivos se guardan en la Base de Datos de la aplicación, por

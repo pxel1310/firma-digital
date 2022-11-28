@@ -7,10 +7,11 @@ import { Layout } from "../../components/layouts";
 
 import { FirmaBox } from "../../components/swr/FirmaBox";
 import { FullScreenLoading } from "../../components/ui";
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
+import { NextPage } from "next";
 
-export const SharePage = () => {
-  const { user, isLoggedIn } = useContext(AuthContext);
+export const SharePage: NextPage = () => {
+  const { isLoggedIn } = useContext(AuthContext);
 
   const { dataSigs, isLoading1 } = useSignatures({
     refreshInterval: 60 * 1000,
@@ -19,33 +20,40 @@ export const SharePage = () => {
     refreshInterval: 60 * 1000,
   });
 
-  if (!isLoggedIn) {
+  if (isLoggedIn) {
     return (
-      <Box
-        display="flex"
-        flexDirection="column"
-        justifyContent="center"
-        alignItems="center"
-        height="calc(100vh - 200px)"
+      <Layout
+        title={"AES - Share"}
+        pageDescription={"Comparte tus mensajes cifrados"}
       >
-        <Typography sx={{ mb: 3 }} variant="h2" fontWeight={200} fontSize={20}>
-          Inicia sesión para poder firmar tus documentos y archivos
-        </Typography>
-      </Box>
+        {isLoading1 && isLoading3 ? (
+          <FullScreenLoading />
+        ) : (
+          <FirmaBox data={dataSigs} users={users} />
+        )}
+      </Layout>
     );
   }
-
   return (
-    <Layout
-      title={"AES - Share"}
-      pageDescription={"Comparte tus mensajes cifrados"}
+    <Box
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
+      alignItems="center"
+      height="calc(100vh - 200px)"
     >
-      {isLoading1 && isLoading3 ? (
-        <FullScreenLoading />
-      ) : (
-        <FirmaBox data={dataSigs} users={users} />
-      )}
-    </Layout>
+      <Typography sx={{ mb: 3 }} variant="h2" fontWeight={200} fontSize={20}>
+        Inicia sesión para poder firmar tus documentos y archivos
+      </Typography>
+      <Button
+        variant="contained"
+        color="primary"
+        href="/auth/login"
+        sx={{ width: "50%" }}
+      >
+        Iniciar Sesión
+      </Button>
+    </Box>
   );
 };
 

@@ -38,22 +38,17 @@ export const CardInfo: FC<Props> = ({ title, description, type }) => {
   ];
   const routes: string[] = ["auth/login", "signature", "share"];
 
-  const iconReq = (type: number): any => {
-    if (type === 0) {
-      return <LoginOutlined />;
-    }
-    if (type === 1) {
-      return <VpnKeyOutlined />;
-    }
-    if (type === 2) {
-      return <CoPresentOutlined />;
-    }
-    if (type === 3) {
-      return <LoginOutlined />;
-    }
+  const iconReq = (type: number): JSX.Element => {
+    if (type === 0) return <LoginOutlined />;
+
+    if (type === 1) return <VpnKeyOutlined />;
+
+    if (type === 2) return <CoPresentOutlined />;
+
+    if (type === 3) return <LoginOutlined />;
   };
 
-  const { user, isLoggedIn, logout } = useContext(AuthContext);
+  const { logout } = useContext(AuthContext);
 
   return (
     <Card
@@ -68,27 +63,39 @@ export const CardInfo: FC<Props> = ({ title, description, type }) => {
         display: "flex",
         flexDirection: "column",
       }}
-      className="fadeIn"
     >
       <CardContent>
-        <Typography gutterBottom variant="h5" component="div">
+        <Typography gutterBottom variant="h4">
           {title}
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+          }}
+        >
           {description}
+          <br />
         </Typography>
       </CardContent>
       <Divider />
 
       {type <= 2 && (
-        <ListItem button onClick={() => navigateTo(`${routes[type]}`)}>
+        <ListItem
+          style={{ cursor: "pointer" }}
+          onClick={() => navigateTo(`${routes[type]}`)}
+        >
           <ListItemIcon>{iconReq(type)}</ListItemIcon>
           <ListItemText primary={action[type]} />
         </ListItem>
       )}
 
       {type === 3 && (
-        <ListItem button onClick={logout}>
+        <ListItem onClick={logout} style={{ cursor: "pointer" }}>
           <ListItemIcon>{iconReq(type)}</ListItemIcon>
           <ListItemText primary={action[type]} />
         </ListItem>

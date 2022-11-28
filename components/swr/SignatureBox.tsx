@@ -13,6 +13,7 @@ import {
   Radio,
   RadioGroup,
   Stack,
+  TextField,
   Typography,
 } from "@mui/material";
 
@@ -27,6 +28,8 @@ import { ISignature } from "../../interfaces";
 
 interface Props {
   files: FileList;
+  publicKey?: string;
+  signature?: string;
 }
 
 const changeToBase64 = function (file: File) {
@@ -47,25 +50,134 @@ export const SignatureBox: FC = function () {
 
   const { user } = useContext(AuthContext);
   const [type, setType] = useState("firma");
+  const [llaveprivadaH, setLlaveprivadaH] = useState("");
+  const [llavepublicaH, setLlavepublicaH] = useState("");
 
   let input;
+  let inputF;
 
   if (type === "firma") {
     input = (
-      <>
-        <FormHelperText sx={{ color: "white" }}>
-          Cargue un archivo para firmar
-        </FormHelperText>
-        <Divider />
+      <FormControl component="fieldset" fullWidth>
         <input
           {...register("files", { required: true })}
-          multiple
           type="file"
+          id="file"
+          style={{ display: "none" }}
         />
-      </>
+        <label htmlFor="file">
+          <Button
+            variant="contained"
+            component="span"
+            sx={{ mt: 2, mb: 2 }}
+            className="buttonSuccess"
+            fullWidth
+            id="fileInput"
+          >
+            Seleccionar archivo
+          </Button>
+        </label>
+        {errors.files && (
+          <FormHelperText error={true}>
+            Debes seleccionar al menos un archivo
+          </FormHelperText>
+        )}
+
+        <TextField
+          value={llaveprivadaH}
+          disabled
+          sx={{ mt: 2 }}
+          label="Llave Privada"
+          variant="outlined"
+          fullWidth
+        />
+      </FormControl>
+    );
+    inputF = (
+      <FormControl component="fieldset" fullWidth>
+        <TextField
+          label="LLave publica"
+          variant="outlined"
+          value={llaveprivadaH}
+          disabled
+          fullWidth
+          sx={{ mt: 2 }}
+        />
+        <TextField
+          label="LLave privada"
+          variant="outlined"
+          value={llavepublicaH}
+          disabled
+          fullWidth
+          sx={{ mt: 2 }}
+        />
+        <Divider sx={{ my: 2 }} />
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={async () => {
+            await firmaApi.get("/keys").then((res) => {
+              setLlavepublicaH(res.data.publicKey);
+              setLlaveprivadaH(res.data.privateKey);
+            });
+          }}
+        >
+          Generar
+        </Button>
+      </FormControl>
     );
   } else if (type === "verificar") {
-    input = <input {...register("files", { required: true })} type="file" />;
+    input = (
+      <FormControl component="fieldset" fullWidth>
+        <input
+          {...register("files", { required: true })}
+          type="file"
+          id="file"
+          style={{ display: "none" }}
+        />
+        <label htmlFor="file">
+          <Button
+            variant="contained"
+            component="span"
+            sx={{ mt: 2, mb: 2 }}
+            className="buttonSuccess"
+            fullWidth
+            id="fileInput"
+          >
+            Seleccionar archivo
+          </Button>
+        </label>
+        {errors.files && (
+          <FormHelperText error={true}>
+            Debes seleccionar al menos un archivo
+          </FormHelperText>
+        )}
+        <Divider sx={{ my: 2 }} />
+        <TextField
+          label="LLave publica"
+          variant="outlined"
+          value={llavepublicaH || undefined}
+          disabled={llavepublicaH !== ""}
+          fullWidth
+          {...register("publicKey", {
+            required: true,
+          })}
+        />
+        <Divider sx={{ my: 2 }} />
+        <TextField
+          sx={{ mt: 2 }}
+          label="Firma"
+          id={"firma"}
+          name={"firma"}
+          variant="outlined"
+          fullWidth
+          {...register("signature", {
+            required: true,
+          })}
+        />
+      </FormControl>
+    );
+    inputF = <> </>;
   }
 
   const onSubmitCifrar = async ({ files }: Props) => {
@@ -87,6 +199,8 @@ export const SignatureBox: FC = function () {
           base64File: base64Files[i] as string,
           user: user?.name,
           email: user?.email,
+          privateKey: llaveprivadaH,
+          publicKey: llavepublicaH,
         };
       newFiles.push(formData);
     }
@@ -97,9 +211,19 @@ export const SignatureBox: FC = function () {
         console.log(res);
         Swal.fire({
           title: "Firma realizada con éxito",
-          text: "Se ha firmado correctamente el archivo",
+          text:
+            "Se ha firmado correctamente el archivo, firma: " +
+            res.data.signature,
           icon: "success",
-          confirmButtonText: "Aceptar",
+          confirmButtonText: "Copiar firma",
+          cancelButtonColor: "#d33",
+          cancelButtonText: "Cerrar",
+          showCancelButton: true,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            navigator.clipboard.writeText(res.data.signature);
+            Swal.fire("Copiado!", "Firma Copiada", "success");
+          }
         });
       })
       .catch((err) => {
@@ -113,9 +237,7 @@ export const SignatureBox: FC = function () {
       });
   };
 
-  const onVerify = async ({ files }: Props) => {
-    const newFiles: ISignature[] = [];
-
+  const onVerify = async ({ files, publicKey, signature }: Props) => {
     const base64Files = await Promise.all(
       Array.from(files).map(async (file) => {
         return await changeToBase64(file);
@@ -123,7 +245,11 @@ export const SignatureBox: FC = function () {
     );
 
     await firmaApi
-      .post("/signature/verify", { base64File: base64Files[0] as string })
+      .post("/signature/verify", {
+        base64File: base64Files[0] as string,
+        publicKey,
+        signature,
+      })
       .then((res) => {
         if (res.data.verify) {
           Swal.fire({
@@ -145,7 +271,7 @@ export const SignatureBox: FC = function () {
         console.log(err);
         Swal.fire({
           title: "Error al verificar",
-          text:  "El archivo no es válido, ha sido modificado o no está firmado",
+          text: "El archivo no es válido, ha sido modificado o no está firmado",
           icon: "error",
           confirmButtonText: "Aceptar",
         });
@@ -156,17 +282,19 @@ export const SignatureBox: FC = function () {
     <Box
       className={"container fadeIn"}
       sx={{
-        marginBottom: 2,
-        paddingX: 5,
-        marginTop: 12,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100%",
       }}
     >
-      <Typography variant="h4" component="h1" sx={{ color: "primary.main" }}>
+      <Typography variant="h3" sx={{ color: "primary.main" }}>
         Firma digital
       </Typography>
-      <Divider sx={{ my: 2 }} />
+      <Divider sx={{ my: 0.75 }} />
       <Stack sx={{ width: "100%" }} spacing={2}>
-        <Alert severity="info">
+        <Alert variant="outlined" severity="info">
           <AlertTitle>Informativo</AlertTitle>
           Recuerda que todos los archivos que firmes se guardan en la Base de
           Datos de la aplicación, por Base64, por lo que no se guardan en el
@@ -175,9 +303,18 @@ export const SignatureBox: FC = function () {
         </Alert>
       </Stack>
 
-      <Divider sx={{ my: 2 }} />
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={6}>
+      <Divider sx={{ my: 1 }} />
+
+      <Grid
+        container
+        spacing={2}
+        sx={{
+          width: "100%",
+          display: "flex",
+        }}
+        style={{ marginTop: "1rem" }}
+      >
+        <Grid item xs={7}>
           <Box
             sx={{
               border: "1px solid",
@@ -191,7 +328,7 @@ export const SignatureBox: FC = function () {
               component="h2"
               sx={{ color: "primary.main" }}
             >
-              Firma
+              {type === "firma" ? "Firmar" : "Verificar"}
             </Typography>
             <Divider sx={{ my: 2 }} />
             <form
@@ -200,7 +337,9 @@ export const SignatureBox: FC = function () {
               )}
             >
               <FormControl component="fieldset">
-                <FormLabel component="legend">Tipo de firma</FormLabel>
+                <FormLabel component="legend">
+                  Selecciona lo que desea hacer
+                </FormLabel>
                 <RadioGroup
                   row
                   aria-label="tipo"
@@ -221,14 +360,9 @@ export const SignatureBox: FC = function () {
                 </RadioGroup>
               </FormControl>
               <Divider sx={{ my: 2 }} />
-              <FormControl fullWidth>
-                {input}
-                {errors.files && (
-                  <Typography variant="body2" color="error">
-                    Debes seleccionar al menos un archivo
-                  </Typography>
-                )}
-              </FormControl>
+
+              {input}
+
               <Divider sx={{ my: 2 }} />
               <Button
                 type="submit"
@@ -241,9 +375,32 @@ export const SignatureBox: FC = function () {
             </form>
           </Box>
         </Grid>
+        <Grid item xs={5}>
+          {type === "firma" && (
+            <Box
+              sx={{
+                border: "1px solid",
+                borderColor: "primary.main",
+                borderRadius: 1,
+                padding: 2,
+              }}
+            >
+              <Typography
+                variant="h5"
+                component="h2"
+                sx={{ color: "primary.main" }}
+              >
+                Generar llaves
+              </Typography>
+
+              <Divider sx={{ my: 2 }} />
+              {inputF}
+            </Box>
+          )}
+        </Grid>
       </Grid>
 
-      <Divider sx={{ my: 2 }} />
+      <Divider sx={{ mb: 2 }} />
 
       <Grid item xs={12} display="flex" justifyContent="end">
         <NextLink href="/" passHref>

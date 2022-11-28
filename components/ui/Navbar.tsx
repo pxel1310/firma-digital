@@ -20,9 +20,14 @@ export const Navbar = () => {
     <AppBar>
       <Toolbar>
         <NextLink href="/" passHref>
-          <Link display="flex" alignItems="center">
-            <Typography variant="h6">Firma Digital |</Typography>
-            <Typography sx={{ ml: 0.5 }}>Examen</Typography>
+          <Link
+            display="flex"
+            alignItems="center"
+            sx={{ color: "white", textDecoration: "none" }}
+          >
+            <Typography variant="h4">
+              Firma Digital | <span style={{ fontSize: ".75em" }}>Examen</span>
+            </Typography>
           </Link>
         </NextLink>
         <Box flex={1} />
@@ -33,7 +38,13 @@ export const Navbar = () => {
           <SearchOutlined />
         </IconButton>
         &nbsp;
-        <Button onClick={toggleSideMenu}>Menú</Button>
+        <Button
+          className="buttonWarning"
+          onClick={toggleSideMenu}
+          style={{ color: "white" }}
+        >
+          Menú
+        </Button>
       </Toolbar>
     </AppBar>
   );
